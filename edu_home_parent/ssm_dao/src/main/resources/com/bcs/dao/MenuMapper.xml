@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bcs.dao.MenuMapper">
+
+    <!--根据pid查询关联的子菜单-->
+    <resultMap id="menuResult" type="com.bcs.domain.Menu">
+        <id column="id" property="id"></id>
+        <result column="href" property="href"></result>
+        <result column="icon" property="icon"></result>
+        <result column="name" property="name"></result>
+        <result column="parent_id" property="parentId"></result>
+        <result column="description" property="description"></result>
+        <result column="orderNum" property="order_num"></result>
+        <result column="shown" property="shown"></result>
+        <result column="created_time" property="createdTime"></result>
+        <result column="updated_time" property="updatedTime"></result>
+        <result column="created_by" property="createdBy"></result>
+        <result column="updated_by" property="updatedBy"></result>
+        <collection property="subMenuList" ofType="com.bcs.domain.Menu" select="findSubMenuListByPid" column="id"></collection>
+    </resultMap>
+
+    <!--根据pid查询父菜单-->
+    <select id="findSubMenuListByPid" parameterType="int" resultMap="menuResult">
+        select * from menu where parent_id = #{pid}
+    </select>
+
+    <!--查询所有菜单信息-->
+    <select id="findAllMenu" resultType="com.bcs.domain.Menu">
+        select * from menu
+    </select>
+
+    <!--根据id查询菜单信息-->
+    <select id="findMenuById" parameterType="int" resultType="com.bcs.domain.Menu">
+        select * from menu where id = #{id}
+    </select>
+
+    <!--新增菜单信息-->
+    <insert id="saveMenu" parameterType="com.bcs.domain.Menu">
+        insert into menu values
+        (null,#{parentId},#{href},#{icon},#{name},#{description},#{orderNum},
+        #{shown},#{level},#{createdTime},#{updatedTime},#{createdBy},#{updatedBy})
+    </insert>
+
+    <!--修改菜单信息-->
+    <update id="updateMenu" parameterType="com.bcs.domain.Menu">
+        update menu set parent_id = #{parentId},href = #{href},icon = #{icon},name = #{name},description = #{description},
+        order_num = #{orderNum},shown = #{shown},level = #{level},created_time = #{createdTime},updated_time = #{updatedTime},
+        created_by = #{createdBy},updated_by = #{updatedBy} where id = #{id}
+    </update>
+
+    <!--删除菜单-->
+    <delete id="deleteMenu" parameterType="int">
+        delete from menu where id = #{id}
+    </delete>
+
+</mapper>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bcs.dao.RoleMapper">
+
+    <!--查询所有角色-->
+    <select id="findAllRole" parameterType="com.bcs.domain.Role" resultType="com.bcs.domain.Role">
+        select * from roles
+        <where>
+            <if test="name !=null and name !=''">
+                and name = #{name}
+            </if>
+        </where>
+    </select>
+
+    <!--添加角色-->
+    <insert id="saveRole" parameterType="com.bcs.domain.Role">
+        insert into roles(code,name,description,created_time,updated_time,created_by,updated_by) values (#{code},#{name},#{description},#{createdTime},#{updatedTime},#{createdBy},#{updatedBy})
+    </insert>
+
+    <!--修改角色-->
+    <update id="updateRole" parameterType="com.bcs.domain.Role">
+        update roles set name = #{name}, code = #{code}, description = #{description}, updated_time = #{updatedTime} where id = #{id}
+    </update>
+
+    <!--根据角色ID查询对应的菜单ID-->
+    <select id="findMenuByRoleId" parameterType="int" resultType="int">
+        SELECT m.id FROM roles r
+        INNER JOIN role_menu_relation rm ON r.id = rm.role_id
+        INNER JOIN menu m ON m.id = rm.menu_id
+        WHERE r.id = #{roleId}
+    </select>
+
+    <!--根据角色ID清空角色菜单中间表数据-->
+    <delete id="deleteRoleContextMenu" parameterType="int">
+        delete from role_menu_relation where role_id = #{role_id}
+    </delete>
+
+    <!--为角色重新分配菜单-->
+    <insert id="RoleContextMenu" parameterType="com.bcs.domain.Role_menu_relation">
+        insert into role_menu_relation values (null,#{menuId},#{roleId},#{createdTime},#{updatedTime},#{createdBy},#{updatedby})
+    </insert>
+
+    <!--删除角色-->
+    <delete id="deleteRole" parameterType="int">
+        delete from roles where id = #{roleId}
+    </delete>
+
+    <!--根据角色id查询对应的资源分类信息-->
+    <select id="findResourceCategoryByRoleId" parameterType="int" resultType="com.bcs.domain.ResourceCategory">
+        SELECT DISTINCT rc.*
+        FROM	 (SELECT DISTINCT re.*
+                    FROM
+                  roles ro INNER JOIN role_resource_relation rr ON ro.id = rr.role_id
+	                       INNER JOIN resource re ON re.id = rr.resource_id
+	              WHERE ro.id = #{roleId}
+	              ) res INNER JOIN resource_category rc ON res.category_id = rc.id
+    </select>
+
+    <!--根据资源分类id查询对应的资源分类下的资源信息-->
+    <select id="findResourceListByRoleIdAndCategoryId" resultType="com.bcs.domain.Resource">
+        SELECT DISTINCT re.*
+        FROM
+        roles ro INNER JOIN role_resource_relation rr ON ro.id = rr.role_id
+	             INNER JOIN resource re ON re.id = rr.resource_id
+	    WHERE ro.id = #{roleId} AND re.category_id = #{categoryId}
+    </select>
+
+    <!--根据角色id清空角色资源中间关系表数据-->
+    <delete id="deleteRoleContextResource" parameterType="int">
+        delete from role_resource_relation where role_id = #{roleId}
+    </delete>
+
+    <!--重新建立角色资源之间的关系-->
+    <insert id="RoleContextResource" parameterType="com.bcs.domain.RoleResourceRelation">
+        insert into role_resource_relation values (null,#{resourceId},#{roleId},#{createdTime},#{updatedTime},#{createdBy},#{updatedBy})
+    </insert>
+
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bcs.dao.ResourceMapper">
+
+    <!--资源分页&多条件查询-->
+    <select id="findAllResource" parameterType="com.bcs.domain.ResourceVO" resultType="com.bcs.domain.Resource">
+        select * from resource
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test="categoryId != null and categoryId != ''">
+                and category_id = #{categoryId}
+            </if>
+            <if test="url != null and url != ''">
+                and url = #{url}
+            </if>
+        </where>
+    </select>
+
+    <!--添加资源信息-->
+    <insert id="saveResource" parameterType="com.bcs.domain.Resource">
+        insert into resource values
+        (null,#{name},#{url},#{categoryId},#{description},#{createdTime},#{updatedTime},#{createdBy},#{updatedBy})
+    </insert>
+
+    <!--修改资源信息-->
+    <update id="updateResource" parameterType="com.bcs.domain.Resource">
+        update resource set name = #{name},url = #{url},category_id = #{categoryId},description = #{description},
+        updated_time = #{updatedTime},updated_by = #{updatedBy} where id = #{id}
+    </update>
+
+    <!--删除资源信息-->
+    <delete id="deleteResource" parameterType="int">
+        delete from resource where id = #{id}
+    </delete>
+
+
+
+</mapper>
